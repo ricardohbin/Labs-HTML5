@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Assignment 1</title>
+</head>
+<body>
+	
+	
+	
+<script>
+	var MyGF = function() {
+		
+		var states = {},square,squareId = 'minisquare';
+		
+		var main = function() {			
+			var pixelVeloc = 10;
+			
+			if(states.left) square.style.left = (square.offsetLeft - pixelVeloc) + 'px';
+			if(states.right) square.style.left = (square.offsetLeft + pixelVeloc) + 'px';			
+			
+			if(states.up) square.style.top = (square.offsetTop - pixelVeloc) + 'px';			
+			if(states.down) square.style.top = (square.offsetTop + pixelVeloc) + 'px';
+			
+			loop(main);
+		};
+		
+		var addEvent = function(eventType,listenerFunction) {
+			if(window.addEventListener) {
+				window.addEventListener(eventType,listenerFunction,false);
+			}else if(window.attachEvent){				
+				document.attachEvent('on' + eventType,listenerFunction);
+			};
+		}
+		
+		var bindEvents = function() {
+			bindKeyPress();
+			bindMouseMove();
+		};
+		
+		var bindKeyPress = function() {
+			addEvent('keydown',function(e) {				
+				if (e.keyCode === 37) {
+					 states.left = true;
+				} else if (e.keyCode === 38) {
+					 states.up = true;
+				} else if (e.keyCode === 39) {
+					 states.right = true;
+				} else if (e.keyCode === 40) {
+					 states.down = true;
+				}
+			});
+			
+			addEvent('keyup',function(e) {				
+				if (e.keyCode === 37) {
+					 states.left = false;
+				} else if (e.keyCode === 38) {
+					 states.up = false;
+				} else if (e.keyCode === 39) {
+					 states.right = false;
+				} else if (e.keyCode === 40) {
+					 states.down = false;
+				}
+			});			
+		};
+		
+		var bindMouseMove = function() {
+			addEvent('click',function(e) {
+				square.style.left = e.clientX - (square.offsetWidth /2) + 'px';
+				square.style.top = e.clientY - (square.offsetHeight /2)+ 'px';				
+			});
+		};
+		
+		var loop = (function() {
+			return window.requestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| window.oRequestAnimationFrame
+			|| window.msRequestAnimationFrame
+			|| function(/* function */callback, /* DOMElement */element) {
+				window.setTimeout(callback, 1000 / 60);
+			};
+		})();
+		
+		this.init = function() {
+			var minisquare = document.createElement('div');
+			minisquare.id = squareId;
+			var minisquareStyle = 'width:100px;height:100px;position:absolute;left:50%;top:50%;background:red;cursor:default;';
+			if(typeof minisquare.style.cssText != 'undefined') {
+				minisquare.style.cssText = minisquareStyle;
+			}else{
+				minisquare.setAttribute('style',minisquareStyle)
+			}
+			document.body.appendChild(minisquare);
+			square = document.getElementById(squareId);
+			bindEvents();
+			loop(main);			
+		};
+	};
+	
+	var game = new MyGF();
+	game.init();
+</script>
+</body>
+</html>

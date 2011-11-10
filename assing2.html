@@ -1,0 +1,266 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>Assing 2.</title>
+</head>
+<style>
+#zero{
+	height:53px;
+	position:absolute;
+	top:200px;
+	overflow:hidden;
+}
+
+#zeroPlayer{
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+.reverse{
+	-moz-transform: scaleX(-1);
+     -o-transform: scaleX(-1);
+     -webkit-transform: scaleX(-1);
+     transform: scaleX(-1);
+     filter: FlipH;
+     -ms-filter: "FlipH";
+}
+
+@-moz-keyframes move {
+    0% { left:0; }
+    24.99% { left:0; }
+    25% { left:-90px; }
+    49.99% { left:-90px; }
+    50% { left:-180px }
+    74.99% { left:-180px }
+    75% { left:-270px; }
+    99.99% { left:-270px; }
+    100% { left:0; }
+    }
+
+/*@-moz-keyframes move {
+    0% { left:0; }
+    24.99% { left:0; }
+    25% { left:-90px; }
+    49.99% { left:-90px; }
+    50% { left:-180px }
+    74.99% { left:-180px }
+    75% { left:-270px; }
+    99.99% { left:-270px; }
+    100% { left:0; }
+}
+#zeroPlayer {
+    -moz-animation: move 0.5s linear 0s infinite;
+}*/
+
+/*
+@-moz-keyframes move {
+0% { left:0px; }
+5.87% { left:0px; }
+5.88% { left:-46px; }
+11.75% { left:-46px; }
+11.76% { left:-90px; }
+17.63% { left:-90px; }
+17.64% { left:-147px; }
+23.51% { left:-147px; }
+23.52% { left:-202px; }
+29.4% { left:-202px; }
+29.41% { left:-256px; }
+35.28% { left:-256px; }
+35.29% { left:-312px; }
+41.16% { left:-312px; }
+41.17% { left:-363px; }
+47.04% { left:-363px; }
+47.05% { left:-414px; }
+52.93% { left:-414px; }
+52.94% { left:-472px; }
+58.81% { left:-472px; }
+58.82% { left:-527px; }
+64.69% { left:-527px; }
+64.7% { left:-579px; }
+70.57% { left:-579px; }
+70.58% { left:-636px; }
+76.46% { left:-636px; }
+76.47% { left:-691px; }
+82.34% { left:-691px; }
+82.35% { left:-740px; }
+88.22% { left:-740px; }
+88.23% { left:-791px; }
+94.1% { left:-791px; }
+100% { left:0 }
+}
+
+#zeroPlayer {
+    -moz-animation: move 1s linear 0s infinite;
+}
+*/
+</style>
+<body>
+
+
+<script>
+var myGame = function() {	
+/*** privates ***/
+	
+	var statesKey = {},zero,zeroPlayer;
+	
+	var zeroPosition = 0,zeroMoviment = 0;
+	
+	var spritesPos = [
+		{width:37,left:0}, //stopped
+		{width:39,left:-46},
+		{width:51,left:-90},
+		{width:51,left:-147},
+		{width:50,left:-202},
+		{width:48,left:-256},
+		{width:45,left:-312},
+		{width:41,left:-363},
+		{width:46,left:-414},
+		{width:49,left:-472},
+		{width:46,left:-527},
+		{width:52,left:-579},
+		{width:48,left:-636},
+		{width:45,left:-691},
+		{width:43,left:-740},
+		{width:46,left:-791}                
+	                 ];
+	
+	var relax = function() {
+		zeroPlayer.style.left = spritesPos[0].left;	
+		zero.style.width = spritesPos[0].width;		
+	}
+	                 
+	var frames = spritesPos.length;
+	
+	var loop = (function() {
+		return window.requestAnimationFrame
+		|| window.webkitRequestAnimationFrame
+		|| window.mozRequestAnimationFrame
+		|| window.oRequestAnimationFrame
+		|| window.msRequestAnimationFrame
+		|| function(/* function */callback, /* DOMElement */element) {
+			window.setTimeout(callback, 1000 / 60);
+		};
+	})();
+	
+	var addEvent = function(eventType,listenerFunction) {
+		if(window.addEventListener) {
+			window.addEventListener(eventType,listenerFunction,false);
+		}else if(window.attachEvent){				
+			document.attachEvent('on' + eventType,listenerFunction);
+		};
+	}
+	
+	var bindKeyPress = function() {
+		addEvent('keydown',function(e) {				
+			if (e.keyCode === 37) {
+				 statesKey.left = true;
+			} else if (e.keyCode === 38) {
+				 statesKey.up = true;
+			} else if (e.keyCode === 39) {
+				 statesKey.right = true;
+			} else if (e.keyCode === 40) {
+				 statesKey.down = true;
+			}
+		});
+		
+		addEvent('keyup',function(e) {				
+			if (e.keyCode === 37) {
+				 statesKey.left = false;
+			} else if (e.keyCode === 38) {
+				 //statesKey.up = false;
+			} else if (e.keyCode === 39) {
+				 statesKey.right = false;
+			} else if (e.keyCode === 40) {
+				 statesKey.down = false;
+			}
+		});			
+	};
+	
+	var constructAnimationClass = function(prefix, animationName, frames, type,stop){
+	   var animationClass = "@" + prefix + "keyframes "+ animationName +" {\n",
+	       step = 100/(frames+1),
+	       str = "% { " + prefix + type + ":";
+	   for (var i = 0; i < frames; i++) {
+	       animationClass += ~~((step*i)*100) / 100 + "% { " + type + ':' + spritesPos[i][type] + 'px; }\n';
+	       animationClass += ~~((step*(i+1)-0.01)*100)/100 + "% { " + type + ':' + spritesPos[i][type] + 'px; }\n';
+	   }
+	   return animationClass += '100'+ "% { " + type + ':' + (stop ? 0 : spritesPos[frames-1][type]+'px'  )+' }\n}';
+	};
+	
+	var main = function() {		
+		var pixelVeloc = 10;
+		var movement;
+		
+		if(statesKey.direction == 'left') zero.className = 'reverse';
+		if(statesKey.direction == 'right') zero.className = '';
+		
+		//if(statesKey.left) square.style.left = (square.offsetLeft - pixelVeloc) + 'px';
+		if(statesKey.right) {
+			moving();
+			statesKey.direction = 'right';
+			zero.style.left = (zero.offsetLeft + pixelVeloc) + 'px'
+		}
+		
+		if(!statesKey.right && !statesKey.left && !statesKey.jumping){
+			relax();
+		}
+		
+		if(statesKey.left) {
+			moving();
+			statesKey.direction = 'left';
+			zero.style.left = (zero.offsetLeft - pixelVeloc) + 'px'
+		}
+		
+		if(statesKey.up) {
+			statesKey.right = false;
+			statesKey.left = false;
+			statesKey.jumping = true;
+			jump();
+			statesKey.up = false;
+		}		
+		
+		loop(main);
+	}
+	
+	var actualMove = 1;
+	var moving = function() {				
+		if(actualMove == spritesPos.length) actualMove = 1;
+		zero.style.width = spritesPos[actualMove]['width'] + 'px';
+		zeroPlayer.style.left = spritesPos[actualMove]['left'] + 'px';
+		//var animStyle = document.createElement('style');   
+		//animStyle.innerHTML = constructAnimationClass('-moz-', 'move', frames,'left',false);
+		//animStyle.innerHTML = constructAnimationClass('-moz-', 'moveWidth', frames,'width',true); 
+ 		//document.getElementsByTagName('head')[0].appendChild(animStyle);
+		//zeroPlayer.style.MozAnimation = "move 0.3s linear 0s infinite";
+		//zero.style.MozAnimation = "moveWidth 0.3s linear 0s infinite";
+		//console.log(spritesPos[actualMove]['left'])
+		actualMove++;
+	}
+	
+	var jump = function() {
+		//if()
+	}
+
+	
+	
+	this.init = function() {
+		zero = document.createElement('div');
+		zeroPlayer = document.createElement('img');
+		zeroPlayer.src = 'sprite-zero.png';
+		zeroPlayer.id = 'zeroPlayer';
+		zero.id = 'zero';
+		document.body.appendChild(zero);
+		zero.appendChild(zeroPlayer);
+		relax();
+		//binds
+		bindKeyPress();
+		loop(main);
+	}
+}
+
+var myGd = new myGame();
+myGd.init();
+</script>
+</body>
+</html>
